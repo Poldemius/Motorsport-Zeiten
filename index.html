@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Motorsport Hub – F1, MotoGP & Junior Series</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --accent-f1: #e10600;
+      --accent-motogp: #ff6600;
+      --accent-f2: #0090d0;
+      --accent-f3: #a020f0;
+      --accent-academy: #ff1493;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 20px;
+      line-height: 1.5;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto 24px auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f8fafc 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-countdown {
+      max-width: 1200px;
+      margin: 0 auto 30px auto;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+
+    .countdown-title {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .countdown-event {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .timer {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .timer-unit {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 10px 16px;
+      border-radius: 8px;
+      min-width: 70px;
+    }
+
+    .timer-val {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+
+    .timer-lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .controls {
+      max-width: 1200px;
+      margin: 0 auto 24px auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-btn {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background-color: #334155;
+      border-color: #64748b;
+    }
+
+    .grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 4px;
+      color: #fff;
+      text-transform: uppercase;
+    }
+
+    .badge-f1 { background-color: var(--accent-f1); }
+    .badge-motogp { background-color: var(--accent-motogp); }
+    .badge-f2 { background-color: var(--accent-f2); }
+    .badge-f3 { background-color: var(--accent-f3); }
+    .badge-f1-academy { background-color: var(--accent-academy); }
+    .badge-moto2 { background-color: #d97706; }
+    .badge-moto3 { background-color: #059669; }
+
+    .card-body {
+      padding: 16px;
+      flex-grow: 1;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
+    .card-location {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+    }
+
+    .session-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .session-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #0f172a;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .session-name {
+      font-weight: 600;
+    }
+
+    .session-time {
+      color: #38bdf8;
+      font-family: monospace;
+    }
+
+    .card-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .export-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .export-btn:hover {
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🏎️ Motorsport Hub</h1>
+    <span style="color: var(--text-muted); font-size: 0.85rem;">Alle Zeiten automatisch in deiner Zeitzone</span>
+  </header>
+
+  <div class="hero-countdown">
+    <div class="countdown-title">Nächste Session LIVE in</div>
+    <div class="countdown-event" id="next-session-title">Lädt...</div>
+    <div class="timer">
+      <div class="timer-unit"><div class="timer-val" id="d">00</div><div class="timer-lbl">Tage</div></div>
+      <div class="timer-unit"><div class="timer-val" id="h">00</div><div class="timer-lbl">Stunden</div></div>
+      <div class="timer-unit"><div class="timer-val" id="m">00</div><div class="timer-lbl">Minuten</div></div>
+      <div class="timer-unit"><div class="timer-val" id="s">00</div><div class="timer-lbl">Sekunden</div></div>
+    </div>
+  </div>
+
+  <div class="controls" id="filter-container">
+    <button class="filter-btn active" data-filter="all">Alle Serien</button>
+    <button class="filter-btn" data-filter="F1">Formel 1</button>
+    <button class="filter-btn" data-filter="MotoGP">MotoGP</button>
+    <button class="filter-btn" data-filter="F2">F2</button>
+    <button class="filter-btn" data-filter="F3">F3</button>
+    <button class="filter-btn" data-filter="F1 Academy">F1 Academy</button>
+    <button class="filter-btn" data-filter="Moto2">Moto2</button>
+    <button class="filter-btn" data-filter="Moto3">Moto3</button>
+  </div>
+
+  <div class="grid" id="events-grid"></div>
+
+  <script>
+    // Beispieldaten für anstehende Rennwochenenden
+    const events = [
+      {
+        series: 'F1',
+        title: 'Großer Preis von Bahrain',
+        location: 'Sakhir, Bahrain',
+        sessions: [
+          { name: 'Training 1', start: '2026-03-27T12:30:00Z' },
+          { name: 'Qualifying', start: '2026-03-28T16:00:00Z' },
+          { name: 'Rennen', start: '2026-03-29T15:00:00Z' }
+        ]
+      },
+      {
+        series: 'MotoGP',
+        title: 'GP von Portugal',
+        location: 'Portimão, Portugal',
+        sessions: [
+          { name: 'Freies Training 1', start: '2026-03-27T10:45:00Z' },
+          { name: 'Sprint Rennen', start: '2026-03-28T15:00:00Z' },
+          { name: 'Hauptrennen', start: '2026-03-29T13:00:00Z' }
+        ]
+      },
+      {
+        series: 'F2',
+        title: 'Sakhir Feature Race Weekend',
+        location: 'Sakhir, Bahrain',
+        sessions: [
+          { name: 'Qualifying', start: '2026-03-27T16:00:00Z' },
+          { name: 'Sprint Rennen', start: '2026-03-28T13:15:00Z' },
+          { name: 'Hauptrennen', start: '2026-03-29T11:30:00Z' }
+        ]
+      },
+      {
+        series: 'F1 Academy',
+        title: 'Runde 1: Dschidda',
+        location: 'Dschidda, Saudi-Arabien',
+        sessions: [
+          { name: 'Qualifying', start: '2026-04-17T14:00:00Z' },
+          { name: 'Rennen 1', start: '2026-04-18T12:00:00Z' },
+          { name: 'Rennen 2', start: '2026-04-19T11:00:00Z' }
+        ]
+      },
+      {
+        series: 'Moto2',
+        title: 'GP von Portugal (Moto2)',
+        location: 'Portimão, Portugal',
+        sessions: [
+          { name: 'Qualifying', start: '2026-03-28T13:45:00Z' },
+          { name: 'Rennen', start: '2026-03-29T11:15:00Z' }
+        ]
+      },
+      {
+        series: 'Moto3',
+        title: 'GP von Portugal (Moto3)',
+        location: 'Portimão, Portugal',
+        sessions: [
+          { name: 'Qualifying', start: '2026-03-28T12:50:00Z' },
+          { name: 'Rennen', start: '2026-03-29T10:00:00Z' }
+        ]
+      }
+    ];
+
+    function formatDateTime(isoString) {
+      const date = new Date(isoString);
+      return {
+        dateStr: date.toLocaleDateString(undefined, { weekday: 'short', day: '2-digit', month: '2-digit' }),
+        timeStr: date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+      };
+    }
+
+    function renderEvents(filter = 'all') {
+      const grid = document.getElementById('events-grid');
+      grid.innerHTML = '';
+
+      const filtered = filter === 'all' ? events : events.filter(e => e.series === filter);
+
+      filtered.forEach(event => {
+        const badgeClass = `badge-${event.series.toLowerCase().replace(/\s+/g, '-')}`;
+        
+        let sessionsHTML = '';
+        event.sessions.forEach(s => {
+          const formatted = formatDateTime(s.start);
+          sessionsHTML += `
+            <li class="session-item">
+              <span class="session-name">${s.name} (${formatted.dateStr})</span>
+              <span class="session-time">${formatted.timeStr} Uhr</span>
+            </li>
+          `;
+        });
+
+        const cardHTML = `
+          <div class="card">
+            <div class="card-header">
+              <span class="badge ${badgeClass}">${event.series}</span>
+            </div>
+            <div class="card-body">
+              <h2 class="card-title">${event.title}</h2>
+              <div class="card-location">📍 ${event.location}</div>
+              <ul class="session-list">${sessionsHTML}</ul>
+            </div>
+            <div class="card-footer">
+              <button class="export-btn" onclick="exportICS('${event.title}')">📅 Kalender (.ics)</button>
+            </div>
+          </div>
+        `;
+        grid.innerHTML += cardHTML;
+      });
+    }
+
+    // Live Countdown Logik
+    function initCountdown() {
+      let allSessions = [];
+      events.forEach(e => {
+        e.sessions.forEach(s => {
+          allSessions.push({
+            title: `${e.series}: ${e.title} - ${s.name}`,
+            time: new Date(s.start)
+          });
+        });
+      });
+
+      allSessions.sort((a, b) => a.time - b.time);
+
+      function updateTimer() {
+        const now = new Date();
+        const upcoming = allSessions.find(s => s.time > now);
+
+        if (!upcoming) {
+          document.getElementById('next-session-title').innerText = "Keine anstehenden Renntermine";
+          return;
+        }
+
+        document.getElementById('next-session-title').innerText = upcoming.title;
+
+        const diff = upcoming.time - now;
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById('d').innerText = String(d).padStart(2, '0');
+        document.getElementById('h').innerText = String(h).padStart(2, '0');
+        document.getElementById('m').innerText = String(m).padStart(2, '0');
+        document.getElementById('s').innerText = String(s).padStart(2, '0');
+      }
+
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    }
+
+    // Kalender Export Funktion
+    function exportICS(eventTitle) {
+      const event = events.find(e => e.title === eventTitle);
+      if (!event) return;
+
+      let icsData = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//MotorsportHub//DE\n";
+      event.sessions.forEach(s => {
+        const start = new Date(s.start).toISOString().replace(/-|:|\.\d\d\d/g, "");
+        const end = new Date(new Date(s.start).getTime() + 60*60*1000).toISOString().replace(/-|:|\.\d\d\d/g, "");
+        icsData += `BEGIN:VEVENT\nSUMMARY:${event.series}: ${event.title} - ${s.name}\nDTSTART:${start}\nDTEND:${end}\nLOCATION:${event.location}\nEND:VEVENT\n`;
+      });
+      icsData += "END:VCALENDAR";
+
+      const blob = new Blob([icsData], { type: 'text/calendar' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${eventTitle.replace(/\s+/g, '_')}.ics`;
+      a.click();
+    }
+
+    // Filter Buttons Logik
+    document.getElementById('filter-container').addEventListener('click', (e) => {
+      if (e.target.classList.contains('filter-btn')) {
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+        renderEvents(e.target.dataset.filter);
+      }
+    });
+
+    // Initialisierung
+    renderEvents();
+    initCountdown();
+  </script>
+</body>
+</html>
