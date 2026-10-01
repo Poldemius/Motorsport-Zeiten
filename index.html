@@ -1,454 +1,678 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Motorsport Hub – F1, MotoGP & Junior Series</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0b0d">
+  <meta name="description" content="Alle Sessionzeiten der Formel 1, Formel 2, Formel 3, F1 Academy, MotoGP, Moto2 und Moto3 im Überblick.">
+  <title>APEX — Motorsport-Kalender</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap');
     :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --card-border: #334155;
-      --accent-f1: #e10600;
-      --accent-motogp: #ff6600;
-      --accent-f2: #0090d0;
-      --accent-f3: #a020f0;
-      --accent-academy: #ff1493;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      color-scheme: dark;
+      --bg: #0a0b0d;
+      --panel: #111316;
+      --panel-2: #15181b;
+      --line: #272a2e;
+      --muted: #898d92;
+      --soft: #c3c5c8;
+      --white: #f3f3f1;
+      --orange: #ff4b2b;
+      --f1: #ff4b2b;
+      --f2: #35b9e6;
+      --f3: #f7bd45;
+      --academy: #db7de5;
+      --mono: 'DM Mono', ui-monospace, monospace;
+      --display: 'Barlow Condensed', Impact, sans-serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; background: var(--bg); color: var(--white); font: 14px/1.5 var(--sans); }
+    button, input, select { font: inherit; }
+    button, select { color: inherit; }
+    a { color: inherit; }
+    .shell { width: min(1320px, calc(100% - 64px)); margin: 0 auto; }
+    .topbar { height: 76px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: inline-flex; align-items: center; gap: 12px; color: var(--white); text-decoration: none; }
+    .brand-mark { width: 32px; height: 32px; display: grid; place-items: center; background: var(--orange); color: #111; clip-path: polygon(0 0, 100% 0, 100% 76%, 76% 100%, 0 100%); }
+    .brand-mark svg { width: 18px; height: 18px; }
+    .brand-name { font: 800 22px/.9 var(--display); letter-spacing: .07em; }
+    .brand-name span { color: var(--orange); }
+    .top-meta { display: flex; align-items: center; gap: 22px; color: var(--muted); font: 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+    .live-dot { display: inline-block; width: 7px; height: 7px; margin-right: 8px; background: #6bd49c; border-radius: 50%; box-shadow: 0 0 11px #6bd49c66; }
+    .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr); gap: 40px; align-items: end; padding: 72px 0 56px; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; inset: 0 -10% auto 42%; height: 350px; pointer-events: none; background: radial-gradient(ellipse at 62% 35%, #e8402317 0, #e8402300 65%); }
+    .eyebrow { display: flex; align-items: center; gap: 10px; color: var(--orange); font: 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+    .eyebrow::before { content: ''; width: 22px; height: 1px; background: currentColor; }
+    h1 { position: relative; margin: 17px 0 12px; font: 800 clamp(56px, 7.1vw, 100px)/.86 var(--display); letter-spacing: -.035em; text-transform: uppercase; }
+    h1 span { color: var(--orange); }
+    .hero-copy { max-width: 480px; margin: 20px 0 0; color: var(--muted); font-size: 14px; }
+    .next-card { position: relative; min-height: 208px; padding: 23px 25px 20px; overflow: hidden; background: linear-gradient(125deg, #17191c 0%, #121416 70%); border: 1px solid #34363a; }
+    .next-card::after { content: '01'; position: absolute; right: 9px; bottom: -39px; color: #ffffff06; font: 900 180px/.9 var(--display); pointer-events: none; }
+    .next-head { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font: 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .next-head .live-dot { background: var(--orange); box-shadow: 0 0 11px #ff4b2b66; }
+    .next-title { position: relative; z-index: 1; margin: 21px 0 3px; font: 700 30px/1 var(--display); letter-spacing: .015em; text-transform: uppercase; }
+    .next-location { color: var(--muted); font-size: 12px; }
+    .next-session { position: relative; z-index: 1; display: flex; align-items: end; justify-content: space-between; margin-top: 21px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .next-session-label { color: var(--soft); font-size: 12px; }
+    .next-session-time { font: 500 22px/1 var(--mono); letter-spacing: -.06em; }
+    .countdown { margin-top: 5px; color: var(--orange); font: 10px var(--mono); letter-spacing: .08em; }
+    .series-dot { display: inline-block; width: 7px; height: 7px; margin-right: 7px; vertical-align: 1px; border-radius: 50%; background: var(--series-color, var(--orange)); }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0 0 38px; border-block: 1px solid var(--line); }
+    .stat { padding: 19px 22px 18px 0; }
+    .stat + .stat { padding-left: 24px; border-left: 1px solid var(--line); }
+    .stat-value { font: 600 28px/1 var(--display); letter-spacing: .02em; }
+    .stat-label { margin-top: 6px; color: var(--muted); font: 10px var(--mono); letter-spacing: .09em; text-transform: uppercase; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 0 0 22px; }
+    .section-heading { margin: 0; font: 700 28px/1 var(--display); letter-spacing: .04em; text-transform: uppercase; }
+    .section-heading small { margin-left: 10px; color: var(--muted); font: 10px var(--mono); letter-spacing: .04em; vertical-align: 4px; }
+    .controls { display: flex; align-items: center; gap: 8px; }
+    .control-select, .refresh-button, .search { height: 38px; border: 1px solid var(--line); background: var(--panel); color: var(--soft); }
+    .control-select { padding: 0 34px 0 12px; font: 11px var(--mono); appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='m1 1 4 4 4-4' fill='none' stroke='%23898d92' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+    .refresh-button { width: 38px; display: grid; place-items: center; cursor: pointer; }
+    .refresh-button:hover { border-color: var(--orange); color: var(--orange); }
+    .refresh-button svg { width: 15px; height: 15px; }
+    .app-layout { display: grid; grid-template-columns: 222px minmax(0, 1fr); align-items: start; gap: 26px; padding-bottom: 38px; }
+    .app-layout.is-collapsed { grid-template-columns: 64px minmax(0, 1fr); }
+    .series-sidebar { position: sticky; top: 12px; display: grid; gap: 12px; padding: 12px; background: var(--panel); border: 1px solid var(--line); }
+    .sidebar-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .sidebar-copy { min-width: 0; }
+    .sidebar-eyebrow { color: var(--orange); font: 9px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .sidebar-title { margin-top: 3px; color: var(--white); font: 600 19px/1 var(--display); letter-spacing: .06em; text-transform: uppercase; }
+    .sidebar-toggle { width: 32px; height: 32px; flex: 0 0 32px; display: grid; place-items: center; border: 1px solid #34373b; background: #17191c; color: var(--soft); cursor: pointer; }
+    .sidebar-toggle:hover { border-color: var(--orange); color: var(--orange); }
+    .sidebar-toggle svg { width: 15px; height: 15px; transition: transform .18s ease; }
+    .sidebar-caption { padding: 7px 0 0; border-top: 1px solid var(--line); color: var(--muted); font: 9px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+    .filters { display: grid; gap: 6px; }
+    .filter { width: 100%; min-width: 0; min-height: 46px; display: flex; align-items: center; gap: 10px; padding: 7px 8px; border: 1px solid transparent; background: transparent; color: var(--muted); cursor: pointer; text-align: left; transition: border-color .16s ease, background .16s ease; }
+    .filter:hover { border-color: #34373b; background: #17191c; color: var(--white); }
+    .filter:focus-visible { outline: 2px solid var(--series-color); outline-offset: 2px; }
+    .filter[aria-pressed="true"] { border-color: color-mix(in srgb, var(--series-color), #383b3f 55%); background: color-mix(in srgb, var(--series-color), transparent 93%); color: var(--white); box-shadow: inset 2px 0 0 var(--series-color); }
+    .filter-icon { width: 30px; height: 30px; flex: 0 0 30px; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--series-color), transparent 65%); background: color-mix(in srgb, var(--series-color), transparent 91%); color: var(--series-color); font: 600 10px var(--mono); letter-spacing: -.04em; }
+    .filter-name { min-width: 0; flex: 1; overflow: hidden; color: inherit; font: 600 15px/.95 var(--display); letter-spacing: .045em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+    .filter-count { flex: 0 0 auto; min-width: 22px; padding: 2px 4px; border: 1px solid #303337; color: #a2a5a9; font: 9px var(--mono); text-align: center; }
+    .is-collapsed .series-sidebar { padding: 8px 6px; }
+    .is-collapsed .sidebar-head { justify-content: center; }
+    .is-collapsed .sidebar-toggle svg { transform: rotate(180deg); }
+    .is-collapsed .sidebar-copy, .is-collapsed .sidebar-caption, .is-collapsed .filter-name, .is-collapsed .filter-count { display: none; }
+    .is-collapsed .sidebar-toggle { width: 38px; height: 38px; flex-basis: 38px; }
+    .is-collapsed .filters { gap: 5px; }
+    .is-collapsed .filter { width: 42px; height: 42px; min-height: 42px; justify-content: center; padding: 4px; }
+    .is-collapsed .filter-icon { width: 30px; height: 30px; }
+    .main-content { min-width: 0; }
+    .schedule-search { margin: 0 0 12px; }
+    .search-wrap { position: relative; width: min(100%, 310px); margin-left: auto; }
+    .search-wrap svg { position: absolute; top: 11px; left: 12px; width: 15px; height: 15px; color: #72767b; }
+    .search { width: 100%; height: 38px; padding: 0 12px 0 36px; border: 1px solid var(--line); background: var(--panel); color: var(--soft); font-size: 11px; }
+    .search::placeholder { color: #777b80; }
+    .search:focus, .control-select:focus { outline: 1px solid var(--orange); outline-offset: 1px; }
+    .schedule-meta { min-height: 39px; display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--muted); font: 10px var(--mono); letter-spacing: .05em; }
+    .schedule-meta strong { color: var(--soft); font-weight: 400; }
+    .event-list { display: grid; gap: 11px; padding-bottom: 56px; }
+    .event-card { --series-color: var(--f1); background: var(--panel); border: 1px solid #292c30; border-left: 2px solid var(--series-color); }
+    .event-top { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 13px 19px; }
+    .event-main { min-width: 0; display: flex; align-items: center; gap: 14px; }
+    .round-box { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border: 1px solid #34373b; color: var(--muted); font: 11px var(--mono); }
+    .event-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 20px/.98 var(--display); letter-spacing: .035em; text-transform: uppercase; }
+    .event-place { margin-top: 5px; color: var(--muted); font: 10px var(--mono); letter-spacing: .04em; }
+    .event-meta-right { flex: 0 0 auto; color: var(--muted); font: 10px var(--mono); text-align: right; }
+    .series-pills { display: flex; gap: 5px; margin-top: 5px; justify-content: end; }
+    .series-pill { padding: 2px 5px; color: var(--series-color); border: 1px solid color-mix(in srgb, var(--series-color), transparent 72%); background: color-mix(in srgb, var(--series-color), transparent 92%); font: 9px var(--mono); letter-spacing: .06em; }
+    .session-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+    .session { min-height: 57px; display: grid; grid-template-columns: minmax(104px, .9fr) minmax(86px, .7fr) minmax(75px, .5fr) minmax(72px, .48fr); align-items: center; gap: 10px; padding: 9px 19px; border-bottom: 1px solid #202226; }
+    .session:nth-last-child(-n+2) { border-bottom: 0; }
+    .session:nth-child(odd) { border-right: 1px solid #202226; }
+    .session-name { min-width: 0; color: var(--soft); font-size: 11px; }
+    .session-series { display: block; margin-bottom: 2px; color: var(--series-color); font: 9px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .session-date { color: var(--muted); font: 9px var(--mono); text-transform: uppercase; white-space: nowrap; }
+    .session-time { color: var(--white); font: 500 15px var(--mono); letter-spacing: -.05em; white-space: nowrap; }
+    .session-duration { color: #72767b; font: 9px var(--mono); white-space: nowrap; }
+    .session-state { justify-self: end; color: #74787d; font: 9px var(--mono); letter-spacing: .06em; text-align: right; white-space: nowrap; }
+    .session-state.is-next { color: #78dba5; }
+    .session-state.is-soon { color: var(--orange); }
+    .empty, .status { padding: 42px 20px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); text-align: center; }
+    .empty strong { display: block; margin-bottom: 7px; color: var(--white); font: 600 24px var(--display); text-transform: uppercase; }
+    .status { padding: 13px 15px; margin: 0 0 13px; font: 11px var(--mono); text-align: left; }
+    .status.error { border-color: #703628; color: #ff9b83; }
+    .status.cached { border-color: #55492b; color: #e6c477; }
+    footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 19px 0 27px; border-top: 1px solid var(--line); color: var(--muted); font: 10px var(--mono); }
+    footer a { color: var(--soft); text-decoration-color: #686b70; text-underline-offset: 3px; }
+    footer a:hover { color: var(--orange); }
+    .footer-right { text-align: right; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @media (max-width: 820px) {
+      .shell { width: min(100% - 36px, 680px); }
+      .app-layout { grid-template-columns: 184px minmax(0, 1fr); gap: 14px; }
+      .app-layout.is-collapsed { grid-template-columns: 54px minmax(0, 1fr); }
+      .is-collapsed .series-sidebar { padding: 7px 5px; }
+      .is-collapsed .filter { width: 40px; height: 40px; min-height: 40px; }
+      .hero { grid-template-columns: 1fr; gap: 28px; padding: 55px 0 38px; }
+      .next-card { min-height: auto; }
+      .toolbar { align-items: flex-start; flex-direction: column; }
+      .controls { width: 100%; }
+      .control-select { flex: 1; }
+      .search-wrap { width: 100%; }
     }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      padding: 20px;
-      line-height: 1.5;
+    @media (max-width: 560px) {
+      .shell { width: calc(100% - 28px); }
+      .topbar { height: 63px; }
+      .top-meta { gap: 0; font-size: 9px; }
+      .app-layout { grid-template-columns: 46px minmax(0, 1fr); gap: 8px; }
+      .app-layout:not(.is-collapsed) { grid-template-columns: 138px minmax(0, 1fr); gap: 8px; }
+      .series-sidebar { top: 8px; gap: 8px; padding: 7px 5px; }
+      .sidebar-head { justify-content: center; }
+      .sidebar-toggle { width: 34px; height: 34px; flex-basis: 34px; }
+      .sidebar-copy, .sidebar-caption { display: none; }
+      .filter { justify-content: center; gap: 4px; padding: 4px; }
+      .filter-name, .filter-count { display: none; }
+      .app-layout:not(.is-collapsed) .series-sidebar { padding: 8px; }
+      .app-layout:not(.is-collapsed) .sidebar-head { justify-content: space-between; }
+      .app-layout:not(.is-collapsed) .sidebar-copy, .app-layout:not(.is-collapsed) .sidebar-caption,
+      .app-layout:not(.is-collapsed) .filter-name { display: block; }
+      .app-layout:not(.is-collapsed) .filter { justify-content: flex-start; padding: 5px; }
+      .app-layout:not(.is-collapsed) .filter-icon { width: 25px; height: 25px; flex-basis: 25px; }
+      .is-collapsed .series-sidebar { padding: 7px 3px; }
+      .is-collapsed .sidebar-toggle { width: 34px; height: 34px; flex-basis: 34px; }
+      .is-collapsed .filter { width: 38px; height: 38px; min-height: 38px; }
+      .filter-icon { width: 28px; height: 28px; flex-basis: 28px; font-size: 9px; }
+      .hero { padding-top: 43px; }
+      h1 { font-size: clamp(52px, 16vw, 78px); }
+      .stats { margin-bottom: 30px; }
+      .stat { padding-right: 10px; }
+      .stat + .stat { padding-left: 13px; }
+      .stat-value { font-size: 25px; }
+      .stat-label { max-width: 100px; font-size: 8px; }
+      .section-heading { font-size: 25px; }
+      .controls { gap: 6px; }
+      .control-select { padding-left: 9px; padding-right: 25px; font-size: 10px; background-position: right 8px center; }
+      .schedule-meta { font-size: 9px; }
+      .event-top { padding: 12px; }
+      .event-main { gap: 10px; }
+      .event-title { font-size: 18px; }
+      .session-list { grid-template-columns: 1fr; }
+      .session { grid-template-columns: minmax(0, 1fr) 54px 42px; min-height: 54px; gap: 5px; padding: 8px 7px; }
+      .session:nth-child(odd) { border-right: 0; }
+      .session:nth-last-child(2) { border-bottom: 1px solid #202226; }
+      .session-state { display: none; }
+      .session-time { font-size: 13px; }
+      .session-duration { font-size: 8px; }
+      .session-date { font-size: 8px; }
+      footer { align-items: flex-start; flex-direction: column; gap: 9px; }
+      .footer-right { text-align: left; }
     }
-
-    header {
-      max-width: 1200px;
-      margin: 0 auto 24px auto;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      border-bottom: 1px solid var(--card-border);
-      padding-bottom: 20px;
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #f8fafc 0%, #94a3b8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero-countdown {
-      max-width: 1200px;
-      margin: 0 auto 30px auto;
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-    }
-
-    .countdown-title {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-
-    .countdown-event {
-      font-size: 1.3rem;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-
-    .timer {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-    }
-
-    .timer-unit {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      padding: 10px 16px;
-      border-radius: 8px;
-      min-width: 70px;
-    }
-
-    .timer-val {
-      font-size: 1.6rem;
-      font-weight: bold;
-      color: #38bdf8;
-    }
-
-    .timer-lbl {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .controls {
-      max-width: 1200px;
-      margin: 0 auto 24px auto;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .filter-btn {
-      background-color: var(--card-bg);
-      color: var(--text-main);
-      border: 1px solid var(--card-border);
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-
-    .filter-btn:hover, .filter-btn.active {
-      background-color: #334155;
-      border-color: #64748b;
-    }
-
-    .grid {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card-header {
-      padding: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .badge {
-      font-size: 0.75rem;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 4px;
-      color: #fff;
-      text-transform: uppercase;
-    }
-
-    .badge-f1 { background-color: var(--accent-f1); }
-    .badge-motogp { background-color: var(--accent-motogp); }
-    .badge-f2 { background-color: var(--accent-f2); }
-    .badge-f3 { background-color: var(--accent-f3); }
-    .badge-f1-academy { background-color: var(--accent-academy); }
-    .badge-moto2 { background-color: #d97706; }
-    .badge-moto3 { background-color: #059669; }
-
-    .card-body {
-      padding: 16px;
-      flex-grow: 1;
-    }
-
-    .card-title {
-      font-size: 1.2rem;
-      margin-bottom: 4px;
-    }
-
-    .card-location {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      margin-bottom: 16px;
-    }
-
-    .session-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .session-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #0f172a;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-    }
-
-    .session-name {
-      font-weight: 600;
-    }
-
-    .session-time {
-      color: #38bdf8;
-      font-family: monospace;
-    }
-
-    .card-footer {
-      padding: 12px 16px;
-      border-top: 1px solid var(--card-border);
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .export-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 0.8rem;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .export-btn:hover {
-      color: var(--text-main);
+    @media (prefers-reduced-motion: no-preference) {
+      .event-card { animation: arrive .32s ease both; }
+      @keyframes arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     }
   </style>
 </head>
 <body>
-
-  <header>
-    <h1>🏎️ Motorsport Hub</h1>
-    <span style="color: var(--text-muted); font-size: 0.85rem;">Alle Zeiten automatisch in deiner Zeitzone</span>
+  <header class="shell topbar">
+    <a class="brand" href="#top" aria-label="APEX Startseite">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 17 10.7 4h3L21 17h-4.1l-1.4-2.5H8.3L6.9 17H3Zm7.1-5.7h3.5l-1.7-3-1.8 3Z" fill="currentColor"/></svg></span>
+      <span class="brand-name">APEX<span>.</span></span>
+    </a>
+    <div class="top-meta"><span><i class="live-dot"></i>Racing calendar</span><span id="clock">—</span></div>
   </header>
 
-  <div class="hero-countdown">
-    <div class="countdown-title">Nächste Session LIVE in</div>
-    <div class="countdown-event" id="next-session-title">Lädt...</div>
-    <div class="timer">
-      <div class="timer-unit"><div class="timer-val" id="d">00</div><div class="timer-lbl">Tage</div></div>
-      <div class="timer-unit"><div class="timer-val" id="h">00</div><div class="timer-lbl">Stunden</div></div>
-      <div class="timer-unit"><div class="timer-val" id="m">00</div><div class="timer-lbl">Minuten</div></div>
-      <div class="timer-unit"><div class="timer-val" id="s">00</div><div class="timer-lbl">Sekunden</div></div>
+  <main id="top" class="shell app-layout">
+    <aside class="series-sidebar" aria-label="Rennserien auswählen">
+      <div class="sidebar-head">
+        <div class="sidebar-copy"><div class="sidebar-eyebrow">Motorsport</div><div class="sidebar-title">Serien</div></div>
+        <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-expanded="true" aria-controls="filters" aria-label="Menü einklappen" title="Menü einklappen"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m14.5 5-7 7 7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <div class="sidebar-caption">Rennklassen</div>
+      <div class="filters" role="group" aria-label="Rennserie auswählen" id="filters"></div>
+    </aside>
+    <div class="main-content">
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <div class="eyebrow">Der Rennkalender · Saison <span id="hero-year">2026</span></div>
+        <h1 id="page-title">Alles im<br><span>Rennplan.</span></h1>
+        <p class="hero-copy">Jede Session der Formel 1, Formel 2, Formel 3, F1 Academy, MotoGP, Moto2 und Moto3. Zeiten automatisch in deiner Zeitzone — damit du keinen Start verpasst.</p>
+      </div>
+      <aside class="next-card" aria-live="polite" aria-label="Nächste Session">
+        <div class="next-head"><span><i class="live-dot"></i>Als Nächstes</span><span id="next-round">—</span></div>
+        <div class="next-title" id="next-title">Kalender wird geladen</div>
+        <div class="next-location" id="next-location">Einen Moment bitte …</div>
+        <div class="next-session">
+          <div><div class="next-session-label" id="next-session-label">Nächster Start</div><div class="countdown" id="countdown">—</div></div>
+          <div class="next-session-time" id="next-time">--:--</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="stats" aria-label="Kalender im Überblick">
+      <div class="stat"><div class="stat-value" id="stat-sessions">—</div><div class="stat-label" id="stat-sessions-label">Kommende Sessions</div></div>
+      <div class="stat"><div class="stat-value" id="stat-events">—</div><div class="stat-label" id="stat-events-label">Renntermine</div></div>
+      <div class="stat"><div class="stat-value">07</div><div class="stat-label">Rennserien</div></div>
+    </section>
+
+    <section aria-labelledby="schedule-title">
+      <div class="toolbar">
+        <h2 id="schedule-title" class="section-heading">Session-Übersicht <small id="season-label">2026</small></h2>
+        <div class="controls">
+          <label class="sr-only" for="range-select">Zeitraum auswählen</label>
+          <select class="control-select" id="range-select"><option value="upcoming">Kommende Termine</option><option value="season">Ganze Saison</option></select>
+          <label class="sr-only" for="zone-select">Zeitzone auswählen</label>
+          <select class="control-select" id="zone-select"><option value="device">Meine Zeitzone</option><option value="race">Streckenzeit</option><option value="UTC">UTC</option></select>
+          <button class="refresh-button" id="refresh" type="button" title="Kalender aktualisieren" aria-label="Kalender aktualisieren"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M5.5 9A7 7 0 0 1 18 6l2 2M4 16l2 2a7 7 0 0 0 12.5-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+      </div>
+      <div class="schedule-search"><div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6" stroke="currentColor" stroke-width="1.6"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><label class="sr-only" for="search">Grand Prix oder Ort suchen</label><input class="search" id="search" type="search" placeholder="Grand Prix oder Ort suchen"></div></div>
+      <div class="schedule-meta"><span id="result-count">Kalenderdaten werden geladen …</span><span id="zone-label">Zeiten: —</span></div>
+      <div id="notice" aria-live="polite"></div>
+      <div class="event-list" id="event-list" aria-live="polite"><div class="status">Lade die Rennkalender von GitHub …</div></div>
+    </section>
     </div>
-  </div>
+  </main>
 
-  <div class="controls" id="filter-container">
-    <button class="filter-btn active" data-filter="all">Alle Serien</button>
-    <button class="filter-btn" data-filter="F1">Formel 1</button>
-    <button class="filter-btn" data-filter="MotoGP">MotoGP</button>
-    <button class="filter-btn" data-filter="F2">F2</button>
-    <button class="filter-btn" data-filter="F3">F3</button>
-    <button class="filter-btn" data-filter="F1 Academy">F1 Academy</button>
-    <button class="filter-btn" data-filter="Moto2">Moto2</button>
-    <button class="filter-btn" data-filter="Moto3">Moto3</button>
-  </div>
-
-  <div class="grid" id="events-grid"></div>
+  <footer class="shell">
+    <div>Kalenderdaten: <a href="https://github.com/sportstimes/f1" target="_blank" rel="noopener noreferrer">sportstimes/f1</a> · Motorrad-Kalender von <a href="https://nixxo.github.io/calendars/" target="_blank" rel="noopener noreferrer">nixxo</a>.</div>
+    <div class="footer-right">Zeiten werden lokal umgerechnet · Letzte Abfrage <span id="updated-at">—</span></div>
+  </footer>
 
   <script>
-    // Beispieldaten für anstehende Rennwochenenden
-    const events = [
-      {
-        series: 'F1',
-        title: 'Großer Preis von Bahrain',
-        location: 'Sakhir, Bahrain',
-        sessions: [
-          { name: 'Training 1', start: '2026-03-27T12:30:00Z' },
-          { name: 'Qualifying', start: '2026-03-28T16:00:00Z' },
-          { name: 'Rennen', start: '2026-03-29T15:00:00Z' }
-        ]
-      },
-      {
-        series: 'MotoGP',
-        title: 'GP von Portugal',
-        location: 'Portimão, Portugal',
-        sessions: [
-          { name: 'Freies Training 1', start: '2026-03-27T10:45:00Z' },
-          { name: 'Sprint Rennen', start: '2026-03-28T15:00:00Z' },
-          { name: 'Hauptrennen', start: '2026-03-29T13:00:00Z' }
-        ]
-      },
-      {
-        series: 'F2',
-        title: 'Sakhir Feature Race Weekend',
-        location: 'Sakhir, Bahrain',
-        sessions: [
-          { name: 'Qualifying', start: '2026-03-27T16:00:00Z' },
-          { name: 'Sprint Rennen', start: '2026-03-28T13:15:00Z' },
-          { name: 'Hauptrennen', start: '2026-03-29T11:30:00Z' }
-        ]
-      },
-      {
-        series: 'F1 Academy',
-        title: 'Runde 1: Dschidda',
-        location: 'Dschidda, Saudi-Arabien',
-        sessions: [
-          { name: 'Qualifying', start: '2026-04-17T14:00:00Z' },
-          { name: 'Rennen 1', start: '2026-04-18T12:00:00Z' },
-          { name: 'Rennen 2', start: '2026-04-19T11:00:00Z' }
-        ]
-      },
-      {
-        series: 'Moto2',
-        title: 'GP von Portugal (Moto2)',
-        location: 'Portimão, Portugal',
-        sessions: [
-          { name: 'Qualifying', start: '2026-03-28T13:45:00Z' },
-          { name: 'Rennen', start: '2026-03-29T11:15:00Z' }
-        ]
-      },
-      {
-        series: 'Moto3',
-        title: 'GP von Portugal (Moto3)',
-        location: 'Portimão, Portugal',
-        sessions: [
-          { name: 'Qualifying', start: '2026-03-28T12:50:00Z' },
-          { name: 'Rennen', start: '2026-03-29T10:00:00Z' }
-        ]
-      }
-    ];
-
-    function formatDateTime(isoString) {
-      const date = new Date(isoString);
-      return {
-        dateStr: date.toLocaleDateString(undefined, { weekday: 'short', day: '2-digit', month: '2-digit' }),
-        timeStr: date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+    (() => {
+      'use strict';
+      const CURRENT_YEAR = new Date().getFullYear();
+      const BASE = 'https://raw.githubusercontent.com/sportstimes/f1/main/_db';
+      const NIXXO_ICAL_BASE = 'https://nixxo.github.io/calendars/motogp';
+      const SERIES = [
+        { id: 'f1', short: 'F1', icon: 'F1', name: 'Formula 1', color: '#ff4b2b' },
+        { id: 'f2', short: 'F2', icon: 'F2', name: 'Formula 2', color: '#35b9e6' },
+        { id: 'f3', short: 'F3', icon: 'F3', name: 'Formula 3', color: '#f7bd45' },
+        { id: 'f1-academy', short: 'F1 Academy', icon: 'A1', name: 'F1 Academy', color: '#db7de5' },
+        { id: 'motogp', short: 'MotoGP', icon: 'GP', name: 'MotoGP', color: '#a3d94b', calendarType: 'ical', calendarName: 'MotoGP' },
+        { id: 'moto2', short: 'Moto2', icon: 'M2', name: 'Moto2', color: '#68d1bd', calendarType: 'ical', calendarName: 'Moto2' },
+        { id: 'moto3', short: 'Moto3', icon: 'M3', name: 'Moto3', color: '#f28d5b', calendarType: 'ical', calendarName: 'Moto3' }
+      ];
+      const SESSION_LABELS = {
+        fp1: 'Freies Training 1', fp2: 'Freies Training 2', fp3: 'Freies Training 3',
+        practice: 'Freies Training', qualifying: 'Qualifying', qualifying1: 'Qualifying', qualifying2: 'Qualifying 2',
+        sprintQualifying: 'Sprint-Qualifying', sprint: 'Sprint', feature: 'Hauptrennen', gp: 'Grand Prix',
+        race1: 'Rennen 1', race2: 'Rennen 2', warmup: 'Warm-up', race: 'Rennen'
       };
-    }
+      const TRACK_ZONES = {
+        Melbourne: 'Australia/Melbourne', Shanghai: 'Asia/Shanghai', Suzuka: 'Asia/Tokyo', Miami: 'America/New_York',
+        Montreal: 'America/Toronto', Montréal: 'America/Toronto', 'Monte Carlo': 'Europe/Monaco', Barcelona: 'Europe/Madrid',
+        Catalunya: 'Europe/Madrid', Spielberg: 'Europe/Vienna', Silverstone: 'Europe/London', 'Spa-Francorchamps': 'Europe/Brussels',
+        Budapest: 'Europe/Budapest', Zandvoort: 'Europe/Amsterdam', Netherlands: 'Europe/Amsterdam', Monza: 'Europe/Rome',
+        Madrid: 'Europe/Madrid', Baku: 'Asia/Baku', Sepang: 'Asia/Kuala_Lumpur', Singapore: 'Asia/Singapore', Austin: 'America/Chicago',
+        'Mexico City': 'America/Mexico_City', 'Sao Paulo': 'America/Sao_Paulo', 'São Paulo': 'America/Sao_Paulo',
+        'Las Vegas': 'America/Los_Angeles', Doha: 'Asia/Qatar', 'Yas Marina': 'Asia/Dubai',
+        Thailand: 'Asia/Bangkok', Brazil: 'America/Sao_Paulo', 'United States': 'America/Chicago', Spain: 'Europe/Madrid', Japan: 'Asia/Tokyo',
+        France: 'Europe/Paris', Italy: 'Europe/Rome', Hungary: 'Europe/Budapest', Czechia: 'Europe/Prague', Austria: 'Europe/Vienna',
+        Germany: 'Europe/Berlin', 'United Kingdom': 'Europe/London', UK: 'Europe/London', USA: 'America/Chicago', Indonesia: 'Asia/Makassar', Australia: 'Australia/Melbourne',
+        Malaysia: 'Asia/Kuala_Lumpur', Qatar: 'Asia/Qatar', Portugal: 'Europe/Lisbon'
+      };
+      const $ = (id) => document.getElementById(id);
+      const year = CURRENT_YEAR;
+      let records = [];
+      let selectedSeries = 'all';
+      let dataMode = 'live';
+      let clockTimer;
+      let nextTimestamp = null;
+      const deviceZone = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Berlin'; } catch { return 'Europe/Berlin'; } })();
 
-    function renderEvents(filter = 'all') {
-      const grid = document.getElementById('events-grid');
-      grid.innerHTML = '';
+      const appLayout = document.querySelector('.app-layout');
+      const sidebarToggle = $('sidebar-toggle');
+      function setSidebarCollapsed(collapsed, persist = true) {
+        appLayout.classList.toggle('is-collapsed', collapsed);
+        sidebarToggle.setAttribute('aria-expanded', String(!collapsed));
+        const label = collapsed ? 'Menü ausklappen' : 'Menü einklappen';
+        sidebarToggle.setAttribute('aria-label', label);
+        sidebarToggle.title = label;
+        if (persist) {
+          try { localStorage.setItem('apex-sidebar-collapsed', String(collapsed)); } catch { /* storage may be blocked */ }
+        }
+      }
+      let savedSidebarState = null;
+      try { savedSidebarState = localStorage.getItem('apex-sidebar-collapsed'); } catch { /* storage may be blocked */ }
+      setSidebarCollapsed(savedSidebarState === null ? window.matchMedia('(max-width: 900px)').matches : savedSidebarState === 'true', false);
+      sidebarToggle.addEventListener('click', () => setSidebarCollapsed(!appLayout.classList.contains('is-collapsed')));
 
-      const filtered = filter === 'all' ? events : events.filter(e => e.series === filter);
+      $('hero-year').textContent = year;
+      $('season-label').textContent = String(year);
+      $('range-select').value = 'upcoming';
+      buildFilters();
+      $('range-select').addEventListener('change', render);
+      $('zone-select').addEventListener('change', () => { render(); updateHeaderClock(); });
+      $('search').addEventListener('input', render);
+      $('refresh').addEventListener('click', () => loadCalendars(true));
 
-      filtered.forEach(event => {
-        const badgeClass = `badge-${event.series.toLowerCase().replace(/\s+/g, '-')}`;
-        
-        let sessionsHTML = '';
-        event.sessions.forEach(s => {
-          const formatted = formatDateTime(s.start);
-          sessionsHTML += `
-            <li class="session-item">
-              <span class="session-name">${s.name} (${formatted.dateStr})</span>
-              <span class="session-time">${formatted.timeStr} Uhr</span>
-            </li>
-          `;
+      function buildFilters() {
+        const host = $('filters');
+        host.innerHTML = `<button class="filter" type="button" data-series="all" aria-label="Alle Serien" title="Alle Serien" aria-pressed="true" style="--series-color:var(--orange)"><span class="filter-icon" aria-hidden="true">✦</span><span class="filter-name">Alle Serien</span><span class="filter-count" id="count-all">—</span></button>` +
+          SERIES.map(s => `<button class="filter" type="button" data-series="${s.id}" aria-label="${s.name}" title="${s.name}" aria-pressed="false" style="--series-color:${s.color}"><span class="filter-icon" aria-hidden="true">${s.icon}</span><span class="filter-name">${s.name}</span><span class="filter-count" id="count-${s.id}">—</span></button>`).join('');
+        host.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-series]');
+          if (!button) return;
+          selectedSeries = button.dataset.series;
+          host.querySelectorAll('[data-series]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+          render();
         });
+      }
 
-        const cardHTML = `
-          <div class="card">
-            <div class="card-header">
-              <span class="badge ${badgeClass}">${event.series}</span>
-            </div>
-            <div class="card-body">
-              <h2 class="card-title">${event.title}</h2>
-              <div class="card-location">📍 ${event.location}</div>
-              <ul class="session-list">${sessionsHTML}</ul>
-            </div>
-            <div class="card-footer">
-              <button class="export-btn" onclick="exportICS('${event.title}')">📅 Kalender (.ics)</button>
-            </div>
-          </div>
-        `;
-        grid.innerHTML += cardHTML;
-      });
-    }
+      async function loadCalendars(force = false) {
+        $('refresh').disabled = true;
+        $('refresh').style.opacity = '.55';
+        $('event-list').innerHTML = '<div class="status">Lade die Rennkalender von GitHub …</div>';
+        $('notice').innerHTML = '';
+        const fetched = await Promise.all(SERIES.map(async series => {
+          const cacheKey = `apex-calendar-${year}-${series.id}-${series.calendarType === 'ical' ? 'nixxo-ical-v1' : 'sportstimes-json'}`;
+          try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 9000);
+            const response = await fetch(calendarSource(series, year), { cache: 'no-cache', signal: controller.signal });
+            clearTimeout(timeout);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = series.calendarType === 'ical'
+              ? { races: parseIcsCalendar(await response.text(), series) }
+              : await response.json();
+            if (!Array.isArray(data.races) || !data.races.length) throw new Error('Kalender enthält keine Termine');
+            try { localStorage.setItem(cacheKey, JSON.stringify({ savedAt: Date.now(), data })); } catch { /* storage may be blocked */ }
+            return { series, races: data.races, mode: 'live' };
+          } catch (error) {
+            try {
+              const saved = JSON.parse(localStorage.getItem(cacheKey) || 'null');
+              if (saved && Array.isArray(saved.data?.races)) return { series, races: saved.data.races, mode: 'cache', savedAt: saved.savedAt };
+            } catch { /* cache may be unavailable */ }
+            return { series, races: [], mode: 'error', message: error.name === 'AbortError' ? 'Zeitüberschreitung' : error.message };
+          }
+        }));
+        records = fetched.flatMap(({ series, races }) => races.map(race => ({
+          series, race, sessions: normalizeSessions(series, race),
+          source: calendarSource(series, year)
+        })));
+        dataMode = fetched.some(x => x.mode === 'live') ? 'live' : (fetched.some(x => x.mode === 'cache') ? 'cache' : 'error');
+        const failed = fetched.filter(x => x.mode === 'error');
+        const cached = fetched.filter(x => x.mode === 'cache');
+        if (failed.length && records.length) {
+          setNotice(`Kalender für ${failed.map(x => x.series.short).join(', ')} konnten nicht geladen werden. Die übrigen Serien sind verfügbar.`, 'error');
+        } else if (failed.length) {
+          $('event-list').innerHTML = '<div class="empty"><strong>Kalender gerade nicht erreichbar</strong>Bitte verbinde dich mit dem Internet und lade die Seite erneut.</div>';
+          setNotice('Die Daten werden live von GitHub geladen. Prüfe deine Internetverbindung oder öffne die Seite erneut.', 'error');
+        } else if (cached.length) {
+          setNotice(`Offline: Für ${cached.map(x => x.series.short).join(', ')} werden zuletzt gespeicherte Kalender angezeigt.`, 'cached');
+        }
+        $('updated-at').textContent = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' }).format(new Date());
+        $('refresh').disabled = false;
+        $('refresh').style.opacity = '1';
+        render();
+      }
 
-    // Live Countdown Logik
-    function initCountdown() {
-      let allSessions = [];
-      events.forEach(e => {
-        e.sessions.forEach(s => {
-          allSessions.push({
-            title: `${e.series}: ${e.title} - ${s.name}`,
-            time: new Date(s.start)
+      function calendarSource(series, season) {
+        if (series.calendarType === 'ical') return `${NIXXO_ICAL_BASE}/${season}/${series.calendarName}_${season}_calendar.ics`;
+        return `${BASE}/${series.id}/${season}.json`;
+      }
+
+      function parseIcsCalendar(text, series) {
+        const lines = String(text).replace(/\r?\n[ \t]/g, '').split(/\r?\n/);
+        const blocks = [];
+        let active = null;
+        lines.forEach(line => {
+          if (line === 'BEGIN:VEVENT') active = [];
+          else if (line === 'END:VEVENT' && active) { blocks.push(active); active = null; }
+          else if (active) active.push(line);
+        });
+        const meetings = new Map();
+        blocks.forEach(block => {
+          const properties = {};
+          block.forEach(line => {
+            const colon = line.indexOf(':');
+            if (colon < 0) return;
+            const declaration = line.slice(0, colon);
+            const key = declaration.split(';')[0].toUpperCase();
+            if (!['DTSTART', 'DTEND', 'DESCRIPTION', 'LOCATION', 'SUMMARY'].includes(key)) return;
+            properties[key] = { declaration, value: unescapeIcsText(line.slice(colon + 1)) };
           });
+          const description = properties.DESCRIPTION?.value || '';
+          const descriptionLines = description.split(/\n/).map(line => line.trim());
+          const roundName = descriptionLines.find(line => /^Round:/i.test(line))?.replace(/^Round:\s*/i, '').trim();
+          const sessionName = descriptionLines.find(line => /^Session:/i.test(line))?.replace(/^Session:\s*/i, '').trim();
+          const start = parseIcsTimestamp(properties.DTSTART);
+          if (!roundName || !sessionName || !Number.isFinite(start)) return;
+          const sessionKey = icalSessionKey(sessionName, properties.SUMMARY?.value || '', series);
+          const place = properties.LOCATION?.value || '';
+          const placeParts = place.split(',').map(part => part.trim()).filter(Boolean);
+          const country = (placeParts.at(-1) || place).replace(/^\d+\s*/, '').trim();
+          let meeting = meetings.get(roundName);
+          if (!meeting) {
+            meeting = { name: roundName, location: country, track: placeParts[0] || '', sessions: {}, firstSession: start };
+            meetings.set(roundName, meeting);
+          }
+          if (!meeting.sessions[sessionKey]) meeting.sessions[sessionKey] = new Date(start).toISOString();
+          meeting.firstSession = Math.min(meeting.firstSession, start);
         });
-      });
+        return [...meetings.values()].sort((a, b) => a.firstSession - b.firstSession).map((meeting, index) => {
+          delete meeting.firstSession;
+          meeting.round = index + 1;
+          return meeting;
+        });
+      }
 
-      allSessions.sort((a, b) => a.time - b.time);
+      function unescapeIcsText(value) {
+        return value.replace(/\\n/gi, '\n').replace(/\\,/g, ',').replace(/\\;/g, ';').replace(/\\\\/g, '\\');
+      }
 
-      function updateTimer() {
-        const now = new Date();
-        const upcoming = allSessions.find(s => s.time > now);
+      function parseIcsTimestamp(property) {
+        if (!property) return NaN;
+        const value = property.value.trim();
+        const match = value.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z?$/);
+        if (!match) return Date.parse(value);
+        return Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), Number(match[4]), Number(match[5]), Number(match[6]));
+      }
 
-        if (!upcoming) {
-          document.getElementById('next-session-title').innerText = "Keine anstehenden Renntermine";
+      function icalSessionKey(sessionName, summary, series) {
+        const name = `${sessionName} ${summary}`.toLowerCase();
+        if (/free practice/.test(name)) return /(?:nr\.?\s*2|\b2\b)/.test(name) ? 'fp2' : 'fp1';
+        if (/\bpractice\b/.test(name)) return 'practice';
+        if (/qualif/.test(name)) return /(?:nr\.?\s*1|\bq1\b|\b1\b)/.test(name) ? 'qualifying1' : 'qualifying2';
+        if (/sprint/.test(name)) return 'sprint';
+        if (/warm\s?up/.test(name)) return 'warmup';
+        if (/grand prix|\brace\b|\brac\d\b/.test(name)) return 'race';
+        return name.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || `${series.id}-session`;
+      }
+
+      function normalizeSessions(series, race) {
+        const entries = Object.entries(race.sessions || {}).map(([key, value]) => ({ key, timestamp: Date.parse(value) })).filter(x => Number.isFinite(x.timestamp));
+        entries.sort((a, b) => a.timestamp - b.timestamp || a.key.localeCompare(b.key));
+        const seen = new Set();
+        return entries.filter(item => {
+          // Some feeds repeat the same F1 Academy qualifying timestamp under two keys.
+          if (series.id === 'f1-academy' && item.key === 'qualifying2' && seen.has(`qualifying:${item.timestamp}`)) return false;
+          if (item.key === 'qualifying1') seen.add(`qualifying:${item.timestamp}`);
+          return true;
+        }).map(item => ({ ...item, label: sessionLabel(series, item.key) }));
+      }
+
+      function sessionLabel(series, key) {
+        if (series.id.startsWith('moto')) {
+          const labels = { fp1: 'Free Practice 1', practice: 'Practice', fp2: 'Free Practice 2', qualifying1: 'Qualifying 1', qualifying2: 'Qualifying 2', sprint: 'Sprint', warmup: 'Warm-up', race: series.id === 'motogp' ? 'Grand Prix' : 'Race' };
+          return labels[key] || SESSION_LABELS[key] || prettyKey(key);
+        }
+        return SESSION_LABELS[key] || prettyKey(key);
+      }
+
+      function prettyKey(key) {
+        return key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
+      }
+
+      function setNotice(message, kind) {
+        $('notice').innerHTML = `<div class="status ${kind}">${escapeHtml(message)}</div>`;
+      }
+
+      function render() {
+        if (!records.length) return;
+        const now = Date.now();
+        const scope = $('range-select').value;
+        const query = $('search').value.trim().toLocaleLowerCase('de');
+        const futureSessions = records.flatMap(record => record.sessions.filter(s => s.timestamp >= now).map(session => ({ record, session })));
+        const seriesEvents = new Map(SERIES.map(series => [series.id, records.filter(record => record.series.id === series.id && record.sessions.some(session => session.timestamp >= now))]));
+        const upcomingEventCount = (items) => items.filter(record => record.sessions.some(session => session.timestamp >= now)).length;
+        $('count-all').textContent = String(new Set(futureSessions.map(x => `${x.record.series.id}-${x.record.race.round}`)).size).padStart(2, '0');
+        SERIES.forEach(series => {
+          $(`count-${series.id}`).textContent = String(upcomingEventCount(seriesEvents.get(series.id))).padStart(2, '0');
+        });
+        const scopedSessions = selectedSeries === 'all' ? futureSessions : futureSessions.filter(x => x.record.series.id === selectedSeries);
+        const scopedEvents = selectedSeries === 'all' ? [...seriesEvents.values()].flat() : seriesEvents.get(selectedSeries);
+        const scopedName = selectedSeries === 'all' ? '' : ` · ${SERIES.find(s => s.id === selectedSeries).short}`;
+        $('stat-sessions').textContent = String(scopedSessions.length).padStart(2, '0');
+        $('stat-events').textContent = String(upcomingEventCount(scopedEvents)).padStart(2, '0');
+        $('stat-sessions-label').textContent = `Kommende Sessions${scopedName}`;
+        $('stat-events-label').textContent = `Renntermine${scopedName}`;
+        renderNext(futureSessions);
+        const visible = records.map(record => {
+          const eventSessions = record.sessions.filter(session => scope === 'season' || session.timestamp >= now);
+          return { ...record, visibleSessions: eventSessions };
+        }).filter(record => record.visibleSessions.length)
+          .filter(record => selectedSeries === 'all' || record.series.id === selectedSeries)
+          .filter(record => !query || `${record.race.name} ${record.race.location} ${record.series.name}`.toLocaleLowerCase('de').includes(query))
+          .sort((a, b) => a.visibleSessions[0].timestamp - b.visibleSessions[0].timestamp);
+        const visibleCount = visible.reduce((sum, item) => sum + item.visibleSessions.length, 0);
+        $('result-count').innerHTML = scope === 'season'
+          ? `<strong>${visibleCount}</strong> Sessions · ${visible.length} Renntermine angezeigt`
+          : `<strong>${visibleCount}</strong> kommende Sessions · ${visible.length} Renntermine`;
+        $('zone-label').textContent = `Zeiten: ${zoneName()}`;
+        const host = $('event-list');
+        if (!visible.length) {
+          const chosen = SERIES.find(series => series.id === selectedSeries);
+          const title = query ? 'Keine Termine gefunden' : (selectedSeries !== 'all' && scope === 'upcoming' ? `Keine kommenden Termine für ${chosen.short}` : 'Keine Termine gefunden');
+          const detail = query ? 'Ändere den Filter oder suche nach einem anderen Ort.' : (selectedSeries !== 'all' && scope === 'upcoming' ? `Für ${chosen.name} stehen in ${year} keine weiteren Sessions an. Wähle „Ganze Saison“, um frühere Termine anzusehen.` : 'Ändere den Filter oder suche nach einem anderen Ort.');
+          host.innerHTML = `<div class="empty"><strong>${escapeHtml(title)}</strong>${escapeHtml(detail)}</div>`;
           return;
         }
-
-        document.getElementById('next-session-title').innerText = upcoming.title;
-
-        const diff = upcoming.time - now;
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-        document.getElementById('d').innerText = String(d).padStart(2, '0');
-        document.getElementById('h').innerText = String(h).padStart(2, '0');
-        document.getElementById('m').innerText = String(m).padStart(2, '0');
-        document.getElementById('s').innerText = String(s).padStart(2, '0');
+        host.innerHTML = visible.map((record, index) => eventMarkup(record, now, index)).join('');
       }
 
-      updateTimer();
-      setInterval(updateTimer, 1000);
-    }
-
-    // Kalender Export Funktion
-    function exportICS(eventTitle) {
-      const event = events.find(e => e.title === eventTitle);
-      if (!event) return;
-
-      let icsData = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//MotorsportHub//DE\n";
-      event.sessions.forEach(s => {
-        const start = new Date(s.start).toISOString().replace(/-|:|\.\d\d\d/g, "");
-        const end = new Date(new Date(s.start).getTime() + 60*60*1000).toISOString().replace(/-|:|\.\d\d\d/g, "");
-        icsData += `BEGIN:VEVENT\nSUMMARY:${event.series}: ${event.title} - ${s.name}\nDTSTART:${start}\nDTEND:${end}\nLOCATION:${event.location}\nEND:VEVENT\n`;
-      });
-      icsData += "END:VCALENDAR";
-
-      const blob = new Blob([icsData], { type: 'text/calendar' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${eventTitle.replace(/\s+/g, '_')}.ics`;
-      a.click();
-    }
-
-    // Filter Buttons Logik
-    document.getElementById('filter-container').addEventListener('click', (e) => {
-      if (e.target.classList.contains('filter-btn')) {
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        e.target.classList.add('active');
-        renderEvents(e.target.dataset.filter);
+      function renderNext(futureSessions) {
+        const pool = selectedSeries === 'all' ? futureSessions : futureSessions.filter(item => item.record.series.id === selectedSeries);
+        const next = pool.sort((a, b) => a.session.timestamp - b.session.timestamp)[0];
+        if (!next) {
+          nextTimestamp = null;
+          const chosen = SERIES.find(series => series.id === selectedSeries);
+          $('next-title').textContent = selectedSeries === 'all' ? 'Saisonpause' : `${chosen.short} · Saisonpause`;
+          $('next-location').textContent = `Für ${selectedSeries === 'all' ? 'alle Serien' : chosen.name} stehen ${year} keine weiteren Sessions an.`;
+          $('next-round').textContent = `${selectedSeries === 'all' ? 'ALLE SERIEN' : chosen.short} · ${year}`;
+          $('next-session-label').textContent = 'Weitere Termine folgen';
+          $('next-time').textContent = '—';
+          $('countdown').textContent = '—';
+          return;
+        }
+        const { record, session } = next;
+        nextTimestamp = session.timestamp;
+        $('next-title').textContent = eventName(record);
+        $('next-location').textContent = `${venueName(record)} · ${dateLong(session.timestamp, selectedZone(record))}`;
+        $('next-round').textContent = `${record.series.short} · RUNDE ${record.race.round || '—'}`;
+        $('next-session-label').innerHTML = `<i class="series-dot" style="--series-color:${record.series.color}"></i>${escapeHtml(session.label)}`;
+        $('next-time').textContent = formatTime(session.timestamp, selectedZone(record));
+        updateCountdown(session.timestamp);
       }
-    });
 
-    // Initialisierung
-    renderEvents();
-    initCountdown();
+      function eventMarkup(record, now, index) {
+        const zone = selectedZone(record);
+        const sessions = record.visibleSessions;
+        const start = sessions[0].timestamp;
+        const finish = sessions[sessions.length - 1].timestamp;
+        const series = record.series;
+        const rowMarkup = sessions.map((session, i) => {
+          const past = session.timestamp < now;
+          const next = !past && sessions.findIndex(x => x.timestamp >= now) === i;
+          const delta = session.timestamp - now;
+          const soon = delta >= 0 && delta < 60 * 60 * 1000;
+          const state = past ? 'VORBEI' : (soon ? 'BALD' : (next ? 'ALS NÄCHSTES' : 'GEPLANT'));
+          const stateClass = soon ? 'is-soon' : (next ? 'is-next' : '');
+          return `<div class="session" style="--series-color:${series.color}">
+            <div class="session-name"><span class="session-series">${series.short}</span>${escapeHtml(session.label)}</div>
+            <div class="session-date">${escapeHtml(dateShort(session.timestamp, zone))}</div>
+            <div class="session-time">${formatTime(session.timestamp, zone)}</div>
+            <div class="session-state ${stateClass}">${state}</div>
+          </div>`;
+        }).join('');
+        return `<article class="event-card" style="--series-color:${series.color};animation-delay:${Math.min(index * 25, 250)}ms">
+          <div class="event-top">
+            <div class="event-main"><div class="round-box">${String(record.race.round || '–').padStart(2, '0')}</div><div style="min-width:0"><div class="event-title">${escapeHtml(eventName(record))}</div><div class="event-place">${escapeHtml(venueName(record))} · ${escapeHtml(dateRange(start, finish, zone))}</div></div></div>
+            <div class="event-meta-right">RUNDE ${String(record.race.round || '—').padStart(2, '0')}<div class="series-pills"><span class="series-pill" style="--series-color:${series.color}">${series.short}</span></div></div>
+          </div>
+          <div class="session-list">${rowMarkup}</div>
+        </article>`;
+      }
+
+      function eventName(record) {
+        let name = record.race.name || 'Grand Prix';
+        if (record.series.id === 'f1') {
+          if (name === 'Bahrain Grand Prix (Malaysia)') return 'Bahrain GP · Sepang';
+          return name.endsWith('Grand Prix') ? name : `${name} Grand Prix`;
+        }
+        if (record.series.id.startsWith('moto')) {
+          const grandPrix = name.match(/GRAND PRIX OF (.+)$/i);
+          const country = (grandPrix ? grandPrix[1] : name.replace(/\s+GRAND PRIX$/i, '')).toLocaleLowerCase('en').replace(/\b[a-z]/g, letter => letter.toUpperCase());
+          return `${record.series.short} · ${country} GP`;
+        }
+        return `${record.series.short} · ${name}`;
+      }
+
+      function venueName(record) {
+        return [record.race.track, record.race.location].filter(Boolean).join(' · ') || 'Ort offen';
+      }
+
+      function selectedZone(record) {
+        const selected = $('zone-select').value;
+        if (selected === 'UTC') return 'UTC';
+        if (selected === 'race') return TRACK_ZONES[record.race.location] || TRACK_ZONES[record.race.name] || deviceZone;
+        return deviceZone;
+      }
+
+      function zoneName() {
+        const selected = $('zone-select').value;
+        if (selected === 'UTC') return 'UTC';
+        if (selected === 'race') return 'Streckenzeit';
+        return deviceZone.replaceAll('_', ' ');
+      }
+
+      function formatTime(timestamp, zone) {
+        return new Intl.DateTimeFormat('de-DE', { timeZone: zone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(timestamp));
+      }
+      function dateShort(timestamp, zone) {
+        return new Intl.DateTimeFormat('de-DE', { timeZone: zone, weekday: 'short', day: '2-digit', month: 'short' }).format(new Date(timestamp)).replace('.', '').toUpperCase();
+      }
+      function dateLong(timestamp, zone) {
+        return new Intl.DateTimeFormat('de-DE', { timeZone: zone, weekday: 'long', day: '2-digit', month: 'long' }).format(new Date(timestamp));
+      }
+      function localDateKey(timestamp, which) {
+        const zone = which === 'device' ? deviceZone : which;
+        return new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(timestamp));
+      }
+      function dateRange(first, last, zone) {
+        const a = new Intl.DateTimeFormat('de-DE', { timeZone: zone, day: '2-digit', month: 'short' }).format(new Date(first)).replace('.', '').toUpperCase();
+        const b = new Intl.DateTimeFormat('de-DE', { timeZone: zone, day: '2-digit', month: 'short' }).format(new Date(last)).replace('.', '').toUpperCase();
+        return a === b ? a : `${a} — ${b}`;
+      }
+      function updateHeaderClock() {
+        const zone = $('zone-select').value === 'UTC' ? 'UTC' : deviceZone;
+        $('clock').textContent = new Intl.DateTimeFormat('de-DE', { timeZone: zone, weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date()).toUpperCase();
+      }
+      function updateCountdown(timestamp) {
+        const ms = Math.max(0, timestamp - Date.now());
+        const days = Math.floor(ms / 86400000);
+        const hours = Math.floor((ms % 86400000) / 3600000);
+        const minutes = Math.floor((ms % 3600000) / 60000);
+        const seconds = Math.floor((ms % 60000) / 1000);
+        $('countdown').textContent = days ? `STARTET IN ${days}T ${String(hours).padStart(2, '0')}STD ${String(minutes).padStart(2, '0')}MIN` : `STARTET IN ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+      }
+
+      updateHeaderClock();
+      clockTimer = setInterval(() => {
+        updateHeaderClock();
+        if (nextTimestamp) updateCountdown(nextTimestamp);
+      }, 1000);
+      setInterval(render, 60 * 1000);
+      loadCalendars();
+    })();
   </script>
 </body>
 </html>
